@@ -1,8 +1,9 @@
-#-*- coding: utf-8 -*-
-#!/usr/bin/env python
+#!/usr/local/bin/python3
 
 import sys
 import numpy
+
+mistake = 0
 
 def editDistance(r, h):
     '''
@@ -75,7 +76,7 @@ def alignedPrint(list, r, h, result):
         h      -> the list of words produced by splitting hypothesis sentence.
         result -> the rate calculated based on edit distance.
     '''
-    print "REF:",
+    print("REF:",end = ' ')
     for i in range(len(list)):
         if list[i] == "i":
             count = 0
@@ -83,7 +84,7 @@ def alignedPrint(list, r, h, result):
                 if list[j] == "d":
                     count += 1
             index = i - count
-            print " "*(len(h[index])),
+            print(" "*(len(h[index])),end = ' ')
         elif list[i] == "s":
             count1 = 0
             for j in range(i):
@@ -96,18 +97,18 @@ def alignedPrint(list, r, h, result):
                     count2 += 1
             index2 = i - count2
             if len(r[index1]) < len(h[index2]):
-                print r[index1] + " " * (len(h[index2])-len(r[index1])),
+                print(r[index1] + " " * (len(h[index2])-len(r[index1])),end = ' ')
             else:
-                print r[index1],
+                print(r[index1],end = ' ')
         else:
             count = 0
             for j in range(i):
                 if list[j] == "i":
                     count += 1
             index = i - count
-            print r[index],
-    print
-    print "HYP:",
+            print(r[index], end = ' ')
+    print()
+    print("HYP:",end = ' ')
     for i in range(len(list)):
         if list[i] == "d":
             count = 0
@@ -115,7 +116,7 @@ def alignedPrint(list, r, h, result):
                 if list[j] == "i":
                     count += 1
             index = i - count
-            print " " * (len(r[index])),
+            print(" " * (len(r[index])),end = ' ')
         elif list[i] == "s":
             count1 = 0
             for j in range(i):
@@ -128,18 +129,18 @@ def alignedPrint(list, r, h, result):
                     count2 += 1
             index2 = i - count2
             if len(r[index1]) > len(h[index2]):
-                print h[index2] + " " * (len(r[index1])-len(h[index2])),
+                print(h[index2] + " " * (len(r[index1])-len(h[index2])),end = ' ')
             else:
-                print h[index2],
+                print(h[index2],end = ' ')
         else:
             count = 0
             for j in range(i):
                 if list[j] == "d":
                     count += 1
             index = i - count
-            print h[index],
-    print
-    print "EVA:",
+            print(h[index],end = ' ')
+    print()
+    print("EVA:",end = ' ')
     for i in range(len(list)):
         if list[i] == "d":
             count = 0
@@ -147,14 +148,14 @@ def alignedPrint(list, r, h, result):
                 if list[j] == "i":
                     count += 1
             index = i - count
-            print "D" + " " * (len(r[index])-1),
+            print("D" + " " * (len(r[index])-1),end = ' ')
         elif list[i] == "i":
             count = 0
             for j in range(i):
                 if list[j] == "d":
                     count += 1
             index = i - count
-            print "I" + " " * (len(h[index])-1),
+            print("I" + " " * (len(h[index])-1),end = ' ')
         elif list[i] == "s":
             count1 = 0
             for j in range(i):
@@ -167,18 +168,18 @@ def alignedPrint(list, r, h, result):
                     count2 += 1
             index2 = i - count2
             if len(r[index1]) > len(h[index2]):
-                print "S" + " " * (len(r[index1])-1),
+                print("S" + " " * (len(r[index1])-1),end = ' ')
             else:
-                print "S" + " " * (len(h[index2])-1),
+                print("S" + " " * (len(h[index2])-1),end = ' ')
         else:
             count = 0
             for j in range(i):
                 if list[j] == "i":
                     count += 1
             index = i - count
-            print " " * (len(r[index])),
-    print
-    print "WER: " + result
+            print(" " * (len(r[index])),end = ' ')
+    print()
+    print("WER: " + result)
 
 def wer(r, h):
     """
@@ -192,13 +193,33 @@ def wer(r, h):
     list = getStepList(r, h, d)
 
     # print the result in aligned way
+    print("result:",float(d[len(r)][len(h)]) )
+    global mistake
+    mistake = mistake + d[len(r)][len(h)]
     result = float(d[len(r)][len(h)]) / len(r) * 100
     result = str("%.2f" % result) + "%"
     alignedPrint(list, r, h, result)
 
 if __name__ == '__main__':
-    filename1 = sys.argv[1]
-    filename2 = sys.argv[2]
-    r = file(filename1).read().split()
-    h = file(filename2).read().split()
-    wer(r, h)   
+    
+    test = open("../output",'r')
+    sol = open("../test.transcription",'r')
+    test_string = test.readlines()
+    sol_string = sol.readlines()
+    sum = 0 
+    for i in range(15):
+        sol_word = sol_string[i].strip("\n").lower().split()
+        sum = sum +len(sol_word)
+        test_word = test_string[i].strip("\n").lower().split()
+        wer(sol_word,test_word)
+    #filename1 = sys.argv[1]
+    #filename2 = sys.argv[2]
+    
+    #r = open(filename1).read().split()
+    #h = open(filename2).read().split()
+    #global mistake
+    print(mistake)
+    print("total error:", mistake/sum)
+    print("correct percentage:",((sum-mistake)/sum)*100,"%")
+    test.close()
+    sol.close() 
